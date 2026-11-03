@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اقتراحات FLUX Web</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --card:#12121a;
+    --card2:#1a1a27;
+    --primary:#7c3aed;
+    --primary2:#a855f7;
+    --accent:#22d3ee;
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --border:rgba(255,255,255,0.08);
+    --success:#10b981;
+    --error:#ef4444;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(600px at 20% 20%, rgba(124,58,237,0.25), transparent 60%),
+      radial-gradient(800px at 80% 80%, rgba(34,211,238,0.15), transparent 60%),
+      radial-gradient(500px at 50% -10%, rgba(168,85,247,0.2), transparent);
+    pointer-events:none;
+    z-index:-1;
+  }
+  .container{
+    max-width:520px;
+    margin:0 auto;
+    padding:24px 20px 40px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .logo{
+    text-align:center;
+    margin:18px 0 28px;
+  }
+  .logo-badge{
+    width:64px;height:64px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    border-radius:18px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:800;
+    box-shadow:0 10px 30px rgba(124,58,237,0.4);
+    margin-bottom:14px;
+  }
+  .logo h1{
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:-0.5px;
+    background:linear-gradient(90deg,#fff, #a78bfa);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .logo p{color:var(--muted);font-size:14px;margin-top:4px}
+  .card{
+    background:linear-gradient(180deg, var(--card), var(--card2));
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:28px 24px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    backdrop-filter:blur(20px);
+    animation:fadeUp .5s ease;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .card-title{font-size:20px;font-weight:700;margin-bottom:6px}
+  .card-desc{color:var(--muted);font-size:13.5px;margin-bottom:22px;line-height:1.6}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
+  .input{
+    width:100%;
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px 16px;
+    color:var(--text);
+    font-size:15px;
+    outline:none;
+    transition:.2s;
+  }
+  .input:focus{border-color:var(--primary);background:rgba(124,58,237,0.08);box-shadow:0 0 0 4px rgba(124,58,237,0.15)}
+  .input::placeholder{color:#64748b}
+  textarea.input{resize:none;min-height:130px;line-height:1.7}
+  .btn{
+    width:100%;
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    color:white;
+    border:none;
+    border-radius:14px;
+    padding:14px 18px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+    box-shadow:0 8px 24px rgba(124,58,237,0.35);
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(124,58,237,0.45)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .btn-secondary{
+    background:rgba(255,255,255,0.06);
+    box-shadow:none;
+    border:1px solid var(--border);
+  }
+  .btn-secondary:hover{background:rgba(255,255,255,0.1)}
+  .divider{height:1px;background:var(--border);margin:20px 0}
+  .user-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px 14px;
+    margin-bottom:20px;
+  }
+  .user-info{display:flex;align-items:center;gap:10px}
+  .avatar{
+    width:38px;height:38px;border-radius:10px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;
+  }
+  .user-meta b{display:block;font-size:14px}
+  .user-meta span{font-size:12px;color:var(--muted)}
+  .logout{font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none}
+  .logout:hover{color:var(--text)}
+  .suggestions-list{margin-top:22px}
+  .suggestion-item{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:10px;
+    animation:fadeUp .3s ease;
+  }
+  .suggestion-item .time{font-size:11px;color:var(--muted);margin-bottom:6px}
+  .suggestion-item .text{font-size:13.5px;line-height:1.6}
+  .badge{
+    display:inline-flex;
+    background:rgba(16,185,129,0.15);
+    color:#6ee7b7;
+    border:1px solid rgba(16,185,129,0.2);
+    border-radius:100px;
+    padding:4px 10px;
+    font-size:11px;
+    font-weight:700;
+    margin-bottom:12px;
+  }
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#1e1e2e;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:12px 18px;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:600;
+    box-shadow:0 10px 40px rgba(0,0,0,0.5);
+    opacity:0;
+    transition:.3s;
+    pointer-events:none;
+    z-index:999;
+    max-width:90%;
+    text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.success{border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.1)}
+  .toast.error{border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.1)}
+  .config-warning{
+    background:rgba(245,158,11,0.1);
+    border:1px solid rgba(245,158,11,0.25);
+    color:#fcd34d;
+    border-radius:12px;
+    padding:12px;
+    font-size:12px;
+    line-height:1.6;
+    margin-bottom:18px;
+  }
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <div class="logo-badge">F</div>
+    <h1>اقتراحات FLUX Web</h1>
+    <p>مساحتك لمشاركة أفكارك وتطوير خدماتنا</p>
+  </div>
+
+  <!-- صفحة تسجيل الدخول -->
+  <div id="loginPage" class="card">
+    <div class="card-title">مرحباً بك 👋</div>
+    <div class="card-desc">سجل دخولك باللقب ورقم الهاتف للبدء في إرسال اقتراحاتك. بياناتك آمنة وتستخدم فقط للتواصل.</div>
+    
+    <div class="field">
+      <label>اللقب / الاسم المستعار</label>
+      <input id="nickname" class="input" placeholder="مثال: Ahmed FLUX" maxlength="30" autocomplete="nickname">
+    </div>
+    <div class="field">
+      <label>رقم الهاتف</label>
+      <input id="phone" class="input" placeholder="مثال: 01012345678" type="tel" dir="ltr" style="text-align:right" maxlength="15">
+    </div>
+    <button id="loginBtn" class="btn" onclick="handleLogin()">
+      <span>دخول</span>
+      <span>→</span>
+    </button>
+    <div class="divider"></div>
+    <p style="font-size:11.5px;color:var(--muted);text-align:center;line-height:1.6">بالدخول أنت توافق على استخدام بياناتك فقط لغرض متابعة الاقتراحات. لن نشاركها مع أي جهة.</p>
+  </div>
+
+  <!-- الصفحة الرئيسية -->
+  <div id="mainPage" class="hidden">
+    <div id="configWarn" class="config-warning hidden">
+      ⚠️ تنبيه للمطور: لم تقم بضبط <b>توكن البوت</b> و <b>Chat ID</b> داخل الكود. الاقتراحات لن تصل لتليجرام حتى تضبطهم في السطر 220 تقريباً.
+    </div>
+
+    <div class="user-bar">
+      <div class="user-info">
+        <div id="avatar" class="avatar">A</div>
+        <div class="user-meta">
+          <b id="displayName">-</b>
+          <span id="displayPhone">-</span>
+        </div>
+      </div>
+      <button class="logout" onclick="handleLogout()">خروج</button>
+    </div>
+
+    <div class="card">
+      <div class="badge">✦ يمكنك إرسال أكثر من اقتراح</div>
+      <div class="card-title">اكتب اقتراحك</div>
+      <div class="card-desc">كل فكرة منك تساعدنا نطور FLUX Web للأفضل. كن واضح ومباشر.</div>
+      
+      <div class="field">
+        <label>نص الاقتراح</label>
+        <textarea id="suggestionText" class="input" placeholder="مثال: أتمنى تضيفوا الوضع الليلي للتطبيق، وخاصية حفظ الاقتراحات..."></textarea>
+      </div>
+      <button id="sendBtn" class="btn" onclick="sendSuggestion()">
+        <span id="sendBtnText">إرسال الاقتراح</span>
+        <span id="sendBtnIcon">🚀</span>
+      </button>
+      <div id="statusMsg" style="font-size:12.5px;margin-top:12px;text-align:center;display:none"></div>
+    </div>
+
+    <div id="historyWrap" class="suggestions-list hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-weight:700;font-size:14px">اقتراحاتك السابقة</div>
+        <div id="countBadge" style="font-size:11px;color:var(--muted)">0 اقتراح</div>
+      </div>
+      <div id="suggestionsList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* =======================
+   ⚙️ إعدادات بوت تليجرام
+   ضع هنا التوكن والـ Chat ID
+   ======================= */
+const TELEGRAM_BOT_TOKEN = "8917477581:AAFy4vmts2Do0apISZbGXzAkhaRiaEJDJEs"; // مثال: 1234567890:AAH...
+const TELEGRAM_CHAT_ID = "8387609270"; // مثال: 123456789 أو -100...
+
+/* ======================= */
+
+const loginPage = document.getElementById('loginPage');
+const mainPage = document.getElementById('mainPage');
+const nicknameInput = document.getElementById('nickname');
+const phoneInput = document.getElementById('phone');
+const suggestionText = document.getElementById('suggestionText');
+const toastEl = document.getElementById('toast');
+
+function showToast(msg, type=''){
+  toastEl.textContent = msg;
+  toastEl.className = 'toast show ' + type;
+  setTimeout(()=> toastEl.className='toast '+type, 3000);
+}
+
+function isConfigured(){
+  return TELEGRAM_BOT_TOKEN && !TELEGRAM_BOT_TOKEN.includes('PUT_YOUR') && TELEGRAM_CHAT_ID && !TELEGRAM_CHAT_ID.includes('PUT_YOUR');
+}
+
+function checkConfig(){
+  const warn = document.getElementById('configWarn');
+  if(!isConfigured()){
+    warn.classList.remove('hidden');
+  } else {
+    warn.classList.add('hidden');
+  }
+}
+
+function handleLogin(){
+  const nick = nicknameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  if(nick.length < 2){
+    showToast('من فضلك اكتب لقب صحيح (حرفين على الأقل)', 'error');
+    return;
+  }
+  if(!/^[0-9+ ]{7,15}$/.test(phone)){
+    showToast('رقم الهاتف غير صحيح', 'error');
+    return;
+  }
+  localStorage.setItem('flux_nickname', nick);
+  localStorage.setItem('flux_phone', phone);
+  enterMain(nick, phone);
+  showToast('تم تسجيل الدخول بنجاح ✨', 'success');
+}
+
+function enterMain(nick, phone){
+  loginPage.classList.add('hidden');
+  mainPage.classList.remove('hidden');
+  document.getElementById('displayName').textContent = nick;
+  document.getElementById('displayPhone').textContent = phone;
+  document.getElementById('avatar').textContent = nick.charAt(0).toUpperCase();
+  checkConfig();
+  renderHistory();
+}
+
+function handleLogout(){
+  localStorage.removeItem('flux_nickname');
+  localStorage.removeItem('flux_phone');
+  nicknameInput.value='';
+  phoneInput.value='';
+  mainPage.classList.add('hidden');
+  loginPage.classList.remove('hidden');
+  showToast('تم تسجيل الخروج');
+}
+
+async function sendSuggestion(){
+  const text = suggestionText.value.trim();
+  const nick = localStorage.getItem('flux_nickname') || '';
+  const phone = localStorage.getItem('flux_phone') || '';
+  if(text.length < 5){
+    showToast('اكتب اقتراح أوضح (5 أحرف على الأقل)', 'error');
+    return;
+  }
+  const btn = document.getElementById('sendBtn');
+  const btnText = document.getElementById('sendBtnText');
+  const btnIcon = document.getElementById('sendBtnIcon');
+  const status = document.getElementById('statusMsg');
+
+  btn.disabled = true;
+  btnText.textContent = 'جاري الإرسال...';
+  btnIcon.textContent = '⏳';
+  status.style.display='none';
+
+  const now = new Date();
+  const timeStr = now.toLocaleString('ar-EG', {dateStyle:'full', timeStyle:'short', timeZone:'Africa/Cairo'});
+
+  // رسالة تليجرام
+  const telegramMessage = `📩 <b>اقتراح جديد - FLUX Web</b>
+
+`+
+    `👤 <b>اللقب:</b> ${escapeHtml(nick)}
+`+
+    `📱 <b>الهاتف:</b> ${escapeHtml(phone)}
+
+`+
+    `💡 <b>الاقتراح:</b>
+${escapeHtml(text)}
+
+`+
+    `⏰ <b>الوقت:</b> ${escapeHtml(timeStr)}
+`+
+    `🌐 <b>المصدر:</b> اقتراحات FLUX Web`;
+
+  try{
+    if(isConfigured()){
+      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+      const res = await fetch(url, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: telegramMessage,
+          parse_mode: 'HTML'
+        })
+      });
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.description || 'Telegram error');
+      showToast('تم إرسال اقتراحك بنجاح! شكراً لك 🚀', 'success');
+      status.style.display='block';
+      status.style.color='#6ee7b7';
+      status.textContent='✅ وصل اقتراحك لفريق FLUX على تليجرام';
+    } else {
+      // وضع التجربة بدون بوت
+      await new Promise(r=>setTimeout(r,800));
+      showToast('تم حفظ اقتراحك محلياً (فعل البوت ليصلك على تليجرام)', 'success');
+      status.style.display='block';
+      status.style.color='#fcd34d';
+      status.textContent='⚠️ الوضع التجريبي: اضبط توكن البوت ليصلك على تليجرام';
+    }
+
+    // حفظ محلي
+    const history = JSON.parse(localStorage.getItem('flux_suggestions')||'[]');
+    history.unshift({text, time: now.toISOString(), timeStr});
+    localStorage.setItem('flux_suggestions', JSON.stringify(history));
+    suggestionText.value='';
+    renderHistory();
+
+  }catch(e){
+    console.error(e);
+    showToast('فشل الإرسال لتليجرام، تأكد من التوكن والـ Chat ID', 'error');
+    status.style.display='block';
+    status.style.color='#fca5a5';
+    status.textContent='❌ خطأ: '+ e.message;
+  } finally {
+    btn.disabled=false;
+    btnText.textContent='إرسال الاقتراح';
+    btnIcon.textContent='🚀';
+  }
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderHistory(){
+  const wrap = document.getElementById('historyWrap');
+  const list = document.getElementById('suggestionsList');
+  const count = document.getElementById('countBadge');
+  const history = JSON.parse(localStorage.getItem('flux_suggestions')||'[]');
+  if(history.length===0){
+    wrap.classList.add('hidden');
+    return;
+  }
+  wrap.classList.remove('hidden');
+  count.textContent = history.length + ' اقتراح';
+  list.innerHTML = history.map(h=>`
+    <div class="suggestion-item">
+      <div class="time">${h.timeStr||''}</div>
+      <div class="text">${escapeHtml(h.text)}</div>
+    </div>
+  `).join('');
+}
+
+// تحقق تسجيل دخول تلقائي
+(function init(){
+  const nick = localStorage.getItem('flux_nickname');
+  const phone = localStorage.getItem('flux_phone');
+  if(nick && phone){
+    enterMain(nick, phone);
+    nicknameInput.value = nick;
+    phoneInput.value = phone;
+  }
+  // Enter يدخل
+  nicknameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') phoneInput.focus(); });
+  phoneInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
+})();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>
